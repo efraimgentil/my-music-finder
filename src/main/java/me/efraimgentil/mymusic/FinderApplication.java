@@ -19,7 +19,6 @@ public class FinderApplication {
 	@Qualifier(value = "config")
 	public Properties configProperties() throws IOException {
 		Properties properties = new Properties();
-		//TESTE
 		properties.load(new FileInputStream(System.getProperty("user.dir") + "/../finder.properties"));
 		return properties;
 	}
