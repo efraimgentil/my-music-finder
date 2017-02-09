@@ -34,7 +34,7 @@ public class ScanFileVisitor extends SimpleFileVisitor<Path> {
     @Qualifier("baseFolder") String baseFolder;
 
     @Autowired
-    @Qualifier("baseFolder") String folderLayout;
+    @Qualifier("folderLayout") String folderLayout;
 
     private Directory directory;
 
@@ -91,12 +91,12 @@ public class ScanFileVisitor extends SimpleFileVisitor<Path> {
     }
 
     protected void handleArtist(String artistName) {
-        String normatizedName = normatizeName(artistName);
-        if( !artists.containsKey( normatizedName ) ) {
-            Artist artist = new Artist(artistName, normatizedName);
-            artists.put(normatizedName, artist );
+        String normalizedName = normatizeName(artistName);
+        if( !artists.containsKey( normalizedName ) ) {
+            Artist artist = new Artist(artistName, normalizedName);
+            artists.put(normalizedName, artist );
         }
-        currentArtist = artists.get( normatizedName );
+        currentArtist = artists.get( normalizedName );
     }
 
     @Override

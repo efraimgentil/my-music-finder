@@ -23,6 +23,7 @@ public class Artist implements Serializable{
 
     private String genero;
 
+    @OneToMany(mappedBy = "artist")
     private Set<Album> albums = new LinkedHashSet<>();
 
     public void addAlbum(Album album ){
