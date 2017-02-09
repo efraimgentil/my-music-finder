@@ -8,4 +8,7 @@ import org.springframework.stereotype.Repository;
  * Created by efraimgentil on 06/02/17.
  */
 public interface DirectoryRepository extends JpaRepository<Directory , Integer> {
+
+    Directory findByNormalizedName(String normalizedName );
+
 }

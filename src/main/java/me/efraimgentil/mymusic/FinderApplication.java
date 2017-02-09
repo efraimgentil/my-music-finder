@@ -23,6 +23,24 @@ public class FinderApplication {
 		return properties;
 	}
 
+	@Bean
+	@Qualifier("baseFolder")
+	public String baseFolder( @Qualifier("config") Properties properties){
+		return properties.getProperty("baseFolder");
+	}
+
+	@Bean
+	@Qualifier("scanInterval")
+	public String scanInterval( @Qualifier("config") Properties properties){
+		return properties.getProperty("scanInterval");
+	}
+
+	@Bean
+	@Qualifier("folderLayout")
+	public String folderLayout( @Qualifier("config") Properties properties){
+		return properties.getProperty("folderLayout");
+	}
+
 	public static void main(String[] args) throws IOException {
 
 		SpringApplication.run(FinderApplication.class, args);

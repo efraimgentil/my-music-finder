@@ -1,20 +1,27 @@
 package me.efraimgentil.mymusic.service;
 
+import me.efraimgentil.mymusic.model.Album;
+import me.efraimgentil.mymusic.model.Artist;
 import me.efraimgentil.mymusic.model.Directory;
+import me.efraimgentil.mymusic.model.Music;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.text.Normalizer;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 import java.util.regex.Pattern;
+
+import static org.springframework.util.StringUtils.isEmpty;
 
 /**
  * Created by efraimgentil on 02/02/17.
@@ -24,26 +31,95 @@ import java.util.regex.Pattern;
 public class ScanFileVisitor extends SimpleFileVisitor<Path> {
 
     @Autowired
-    DirectoryService directoryService;
+    @Qualifier("baseFolder") String baseFolder;
+
+    @Autowired
+    @Qualifier("baseFolder") String folderLayout;
 
     private Directory directory;
 
+    protected Map<String,Artist> artists = new HashMap<>();
+    protected Map<String,Album> albums = new HashMap<>();
+
+    protected Artist currentArtist;
+    protected Album currentAlbum;
+
+    protected int ARTIST_IDX;
+    protected int ALBUM_IDX;
+    protected int MUSIC_IDX;
+
+
+    @PostConstruct
+    public void prepareVisitor(){
+        String[] split = folderLayout.split("/");
+        for( int i = 0 ;  i< split.length ; i++ ){
+            if( "{artist}".equalsIgnoreCase( split[i] ) ){
+                ARTIST_IDX = i;
+            }
+            if( "{album}".equalsIgnoreCase( split[i] ) ){
+                ALBUM_IDX = i;
+            }
+        }
+    }
+
+
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-        if( !directoryService.isBaseFolder( dir.toString() ) ){
-            directory = new Directory();
-            directory.setNormalizedName( normatizeName( dir.toString().replace( directoryService.getBaseFolder(), "").trim() ));
+        if( !isBaseFolder(dir ) ){
+            String path = pathStringWithoutBaseFolder(dir);
+            String[] split = path.split(File.separator);
+            if( split.length == ARTIST_IDX + 1 ){
+                handleArtist(split[ARTIST_IDX]);
+            }else if( split.length == ALBUM_IDX + 1 ){
+                handleAlbum(split[ARTIST_IDX]);
+            }else{
+                throw new RuntimeException("Layout(" + dir.toString() + ") not supported");
+            }
         }
         return FileVisitResult.CONTINUE; //super.preVisitDirectory(dir, attrs);
     }
 
+    protected void handleAlbum(String albumName) {
+        String normatizedName = normatizeName(albumName);
+        String albumKey = currentArtist.getNormalizedName()+"-"+normatizedName;
+        if( !albums.containsKey( albumKey ) ){
+            Album album = new Album( albumName , normatizedName );
+            currentArtist.addAlbum(album);
+            albums.put( albumKey , album );
+        }
+        currentAlbum =  albums.get( albumKey );
+    }
+
+    protected void handleArtist(String artistName) {
+        String normatizedName = normatizeName(artistName);
+        if( !artists.containsKey( normatizedName ) ) {
+            Artist artist = new Artist(artistName, normatizedName);
+            artists.put(normatizedName, artist );
+        }
+        currentArtist = artists.get( normatizedName );
+    }
+
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-        System.out.println("FOUND FILE " +   file.getFileName() + " in " + directory );
+        String path = pathStringWithoutBaseFolder( file );
+        String[] split = path.split(File.separator);
+        String musicName = split[split.length - 1];
+        String normalizedName = normatizeName( musicName );
+        Music music = new Music(musicName, normalizedName, file.toString());
+        currentAlbum.addMusic( music );
+        return FileVisitResult.CONTINUE;
+    }
 
+    public String pathStringWithoutBaseFolder(Path path){
+        String pathString = path.toString().replace(baseFolder, "").trim();
+        if( pathString.startsWith(File.separator ) ) {
+            pathString = pathString.replaceFirst( File.separator , "" );
+        }
+        return pathString;
+    }
 
-
-        return super.visitFile(file, attrs);
+    public boolean isBaseFolder( Path path ){
+        return path.toString().replace( baseFolder  , "").trim().isEmpty();
     }
 
     public String normatizeName( String dirName ){
