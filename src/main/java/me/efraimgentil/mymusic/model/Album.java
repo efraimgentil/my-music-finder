@@ -13,6 +13,7 @@ import java.util.Set;
 @Table(name="album")
 public class Album implements Serializable {
 
+    public static String NO_ALBUM = "noalbum";
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -29,7 +30,7 @@ public class Album implements Serializable {
     @Column(name="artist_id" , insertable = false , updatable = false)
     private Long artistId;
 
-    @OneToMany(mappedBy = "album")
+    @OneToMany(mappedBy = "album" , cascade = CascadeType.ALL , orphanRemoval = true)
     private Set<Music> musics = new LinkedHashSet<>();
 
     public void addMusic(Music music) {
@@ -52,8 +53,8 @@ public class Album implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
 
         Album album = (Album) o;
-        if (artistId != null ? !artistId.equals(album.artistId) : album.artistId != null) return false;
-        if (id != null ? !id.equals(album.id) : album.id != null) return false;
+
+        if (!artist.equals(album.artist)) return false;
         if (!normalizedName.equals(album.normalizedName)) return false;
 
         return true;
@@ -61,9 +62,8 @@ public class Album implements Serializable {
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + normalizedName.hashCode();
-        result = 31 * result + (artistId != null ? artistId.hashCode() : 0);
+        int result = normalizedName.hashCode();
+        result = 31 * result + artist.hashCode();
         return result;
     }
 

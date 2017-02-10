@@ -38,6 +38,26 @@ public class Music implements Serializable{
         this.name = name;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Music music = (Music) o;
+
+        if (!album.equals(music.album)) return false;
+        if (!normalizedName.equals(music.normalizedName)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = normalizedName.hashCode();
+        result = 31 * result + album.hashCode();
+        return result;
+    }
+
     public Long getId() {
         return id;
     }

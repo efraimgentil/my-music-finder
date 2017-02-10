@@ -23,8 +23,26 @@ public class Artist implements Serializable{
 
     private String genero;
 
-    @OneToMany(mappedBy = "artist")
+    @OneToMany(mappedBy = "artist" , cascade = CascadeType.ALL)
     private Set<Album> albums = new LinkedHashSet<>();
+
+    public Album getNoAlbum(){
+        for( Album a : albums ){
+            if( Album.NO_ALBUM.equals(a.getNormalizedName()) ){
+                return a;
+            }
+        }
+        return null;
+    }
+
+    public boolean hasNoAlbum(){
+        for( Album a : albums ){
+            if( Album.NO_ALBUM.equals(a.getNormalizedName()) ){
+                return true;
+            }
+        }
+        return false;
+    }
 
     public void addAlbum(Album album ){
         album.setArtist( this );
@@ -37,6 +55,23 @@ public class Artist implements Serializable{
     public Artist(String name, String normalizedName) {
         this.name = name;
         this.normalizedName = normalizedName;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Artist artist = (Artist) o;
+
+        if (!normalizedName.equals(artist.normalizedName)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return normalizedName.hashCode();
     }
 
     public Long getId() {

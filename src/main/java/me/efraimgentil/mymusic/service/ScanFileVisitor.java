@@ -2,8 +2,8 @@ package me.efraimgentil.mymusic.service;
 
 import me.efraimgentil.mymusic.model.Album;
 import me.efraimgentil.mymusic.model.Artist;
-import me.efraimgentil.mymusic.model.Directory;
 import me.efraimgentil.mymusic.model.Music;
+import me.efraimgentil.mymusic.repository.ArtistRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
@@ -21,8 +21,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
 
-import static org.springframework.util.StringUtils.isEmpty;
-
 /**
  * Created by efraimgentil on 02/02/17.
  */
@@ -36,7 +34,8 @@ public class ScanFileVisitor extends SimpleFileVisitor<Path> {
     @Autowired
     @Qualifier("folderLayout") String folderLayout;
 
-    private Directory directory;
+    @Autowired
+    ArtistRepository artistRepository;
 
     protected Map<String,Artist> artists = new HashMap<>();
     protected Map<String,Album> albums = new HashMap<>();
@@ -46,7 +45,7 @@ public class ScanFileVisitor extends SimpleFileVisitor<Path> {
 
     protected int ARTIST_IDX;
     protected int ALBUM_IDX;
-    protected int MUSIC_IDX;
+//    protected int MUSIC_IDX;
 
 
     @PostConstruct
@@ -93,10 +92,23 @@ public class ScanFileVisitor extends SimpleFileVisitor<Path> {
     protected void handleArtist(String artistName) {
         String normalizedName = normatizeName(artistName);
         if( !artists.containsKey( normalizedName ) ) {
-            Artist artist = new Artist(artistName, normalizedName);
+            Artist artist = artistRepository.findByNormalizedName(normalizedName);
+            if(artist == null ) {
+                artist = new Artist(artistName, normalizedName);
+            }
             artists.put(normalizedName, artist );
         }
-        currentArtist = artists.get( normalizedName );
+        currentArtist  = prepareNoAlbum( artists.get( normalizedName ) );
+    }
+
+    protected Artist prepareNoAlbum(Artist artist){
+        if( !artist.equals( currentArtist ) ){
+            if( !artist.hasNoAlbum() ){
+                artist.addAlbum(new Album("No Album", Album.NO_ALBUM));
+            }
+        }
+        currentAlbum = artist.getNoAlbum();
+        return artist;
     }
 
     @Override
