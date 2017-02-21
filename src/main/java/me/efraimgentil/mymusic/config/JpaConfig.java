@@ -10,6 +10,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.Properties;
 
@@ -19,6 +20,7 @@ import java.util.Properties;
 @Configuration
 @EnableJpaRepositories( basePackages ="me.efraimgentil.mymusic.repository" )
 @EntityScan(basePackages =  "me.efraimgentil.mymusic.model")
+@EnableTransactionManagement(proxyTargetClass = true)
 public class JpaConfig {
 
     @Autowired @Qualifier(value = "config")

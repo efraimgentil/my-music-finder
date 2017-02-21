@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
@@ -61,7 +62,6 @@ public class ScanFileVisitor extends SimpleFileVisitor<Path> {
         }
     }
 
-
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
         if( !isBaseFolder(dir ) ){
@@ -70,7 +70,7 @@ public class ScanFileVisitor extends SimpleFileVisitor<Path> {
             if( split.length == ARTIST_IDX + 1 ){
                 handleArtist(split[ARTIST_IDX]);
             }else if( split.length == ALBUM_IDX + 1 ){
-                handleAlbum(split[ARTIST_IDX]);
+                handleAlbum(split[ALBUM_IDX]);
             }else{
                 throw new RuntimeException("Layout(" + dir.toString() + ") not supported");
             }

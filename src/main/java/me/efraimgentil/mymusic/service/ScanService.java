@@ -7,6 +7,7 @@ import me.efraimgentil.mymusic.repository.ArtistRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.FileVisitor;
@@ -27,7 +28,7 @@ public class ScanService  {
     @Autowired
     ArtistRepository artistRepository;
 
-
+    @Transactional
     public void scan()  {
         System.out.println("SCANNING");
         try {
@@ -38,20 +39,5 @@ public class ScanService  {
             e.printStackTrace();
         }
     }
-
-    protected void processArtists( Collection<Artist> artists ){
-        for (Artist artist : artists) {
-
-            /*for (Album a : artist.getAlbums()) {
-                processAlbum( a );
-            }*/
-        }
-    }
-
-   /* protected void processAlbum(Album album) {
-        for (Music music : album.getMusics()) {
-
-        }
-    }*/
 
 }
