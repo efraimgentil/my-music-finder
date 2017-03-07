@@ -23,9 +23,5 @@ import java.util.Properties;
 @EnableTransactionManagement(proxyTargetClass = true)
 public class JpaConfig {
 
-    @Autowired @Qualifier(value = "config")
-    Properties appProperties;
-
-
 
 }
