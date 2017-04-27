@@ -3,6 +3,7 @@ package me.efraimgentil.mymusic.config;
 import me.efraimgentil.mymusic.service.ScanService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
@@ -24,8 +25,8 @@ public class SchedulingConfig {
     @Autowired
     TaskScheduler scheduler;
 
-    @Autowired @Qualifier(value = "config")
-    Properties appProperties;
+    @Value("${scanInterval}")
+    private Long scanInterval;
 
     @Autowired
     ScanService scanService;
@@ -42,6 +43,6 @@ public class SchedulingConfig {
     }
 
     private Long getScanInterval(){
-        return Long.valueOf( appProperties.getProperty("scanInterval") ) * 1000 * 60;
+        return Long.valueOf( scanInterval ) * 1000 * 60;
     }
 }

@@ -6,6 +6,7 @@ import me.efraimgentil.mymusic.model.Music;
 import me.efraimgentil.mymusic.repository.ArtistRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,11 +30,9 @@ import java.util.regex.Pattern;
 @Scope("prototype")
 public class ScanFileVisitor extends SimpleFileVisitor<Path> {
 
-    @Autowired
-    @Qualifier("baseFolder") String baseFolder;
+    @Value("${baseFolder}") String baseFolder;
 
-    @Autowired
-    @Qualifier("folderLayout") String folderLayout;
+    @Value("${folderLayout}") String folderLayout;
 
     @Autowired
     ArtistRepository artistRepository;
@@ -117,7 +116,7 @@ public class ScanFileVisitor extends SimpleFileVisitor<Path> {
         String[] split = path.split(File.separator);
         String musicName = split[split.length - 1];
         String normalizedName = normatizeName( musicName );
-        Music music = new Music(musicName, normalizedName, file.toString());
+        Music music = new Music( file.toString().replace(baseFolder , "") , normalizedName, musicName );
         currentAlbum.addMusic( music );
         return FileVisitResult.CONTINUE;
     }

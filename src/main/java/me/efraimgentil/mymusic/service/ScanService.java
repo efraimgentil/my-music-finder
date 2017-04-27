@@ -6,6 +6,7 @@ import me.efraimgentil.mymusic.model.Music;
 import me.efraimgentil.mymusic.repository.ArtistRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,8 +22,9 @@ import java.util.*;
 @Service
 public class ScanService  {
 
-    @Autowired @Qualifier(value = "config")
-    Properties appProperties;
+
+    @Value("${baseFolder}")
+    private String baseFolder;
 
     @Autowired ScanFileVisitor fileVisitor;
     @Autowired
@@ -32,7 +34,7 @@ public class ScanService  {
     public void scan()  {
         System.out.println("SCANNING");
         try {
-            Files.walkFileTree(Paths.get(appProperties.getProperty("baseFolder")), fileVisitor);
+            Files.walkFileTree(Paths.get( baseFolder ), fileVisitor);
 
             artistRepository.save(fileVisitor.artists.values() );
         }catch(IOException e){
